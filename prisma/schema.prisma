@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for optional authentication
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  passwordHash  String
+  name          String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  properties    Property[]
+  stateCharges  StateCharges[]
+}
+
+// Property model for persistent storage
+model Property {
+  id              String   @id @default(uuid())
+  name            String
+  propertyType    String   // 'builder' | 'resale'
+  inputMode       String   // 'calculated' | 'direct'
+
+  // For calculated mode
+  pricePerSqFt    Float?
+  areaSqFt        Float?
+  parkingCost     Float?
+
+  // Core values
+  totalDealValue  Float
+  blackComponent  Float
+
+  // Overrides (stored as JSON for flexibility)
+  overrides       Json     @default("{}")
+
+  // Calculated results (stored for quick access)
+  calculations    Json     @default("{}")
+
+  // State reference
+  stateCode       String?
+
+  // User relationship (optional - null for anonymous)
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Session ID for anonymous users
+  sessionId       String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([stateCode])
+}
+
+// State-wise government charges
+model StateCharges {
+  id                String   @id @default(uuid())
+
+  // State identification
+  stateCode         String
+  stateName         String
+
+  // Property type specific charges
+  propertyType      String   // 'builder' | 'resale' | 'all'
+
+  // Rates
+  stampDutyRate     Float    // e.g., 0.05 for 5%
+  registrationFee   Float    // Fixed amount
+
+  // GST rates (only for builder)
+  gstRateAffordable Float?   // e.g., 0.01 for 1%
+  gstRateStandard   Float?   // e.g., 0.05 for 5%
+  affordableLimit   Float?   // e.g., 4500000 for ₹45L
+
+  // Additional charges
+  metroSurcharge    Float?   // Some states have metro cess
+  otherCharges      Float?   // Any other state-specific charges
+
+  // Notes and source
+  notes             String?
+  sourceUrl         String?
+  lastVerified      DateTime?
+
+  // Is this a default system entry or user-created?
+  isSystem          Boolean  @default(false)
+
+  // User relationship (for custom entries)
+  userId            String?
+  user              User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([stateCode, propertyType, userId])
+  @@index([stateCode])
+  @@index([userId])
+}
+
+// Session model for anonymous users
+model Session {
+  id          String   @id @default(uuid())
+  token       String   @unique
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([token])
+}
