@@ -42,6 +42,12 @@ export function Header() {
                 >
                   Compare
                 </Link>
+                <Link
+                  href="/loan-optimizer"
+                  className="text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors"
+                >
+                  Loan Optimizer
+                </Link>
               </nav>
 
               {/* Auth Section */}

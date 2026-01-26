@@ -1,0 +1,193 @@
+'use client'
+
+import { useState } from 'react'
+import { LoanOptimizerInput } from '@/lib/loanOptimizerTypes'
+import { Input, Toggle, Card } from './ui'
+import { formatIndianNumber } from '@/lib/calculations'
+
+interface LoanOptimizerFormProps {
+    input: LoanOptimizerInput
+    onChange: (input: LoanOptimizerInput) => void
+}
+
+export function LoanOptimizerForm({ input, onChange }: LoanOptimizerFormProps) {
+    const [interestRateDisplay, setInterestRateDisplay] = useState(
+        (input.interestRate * 100).toFixed(2)
+    )
+
+    const handleChange = (field: keyof LoanOptimizerInput, value: number | string | boolean) => {
+        onChange({
+            ...input,
+            [field]: value,
+        })
+    }
+
+    const handlePrincipalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/,/g, '')
+        const numValue = parseFloat(value) || 0
+        handleChange('currentPrincipal', numValue)
+    }
+
+    const handlePartPaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/,/g, '')
+        const numValue = parseFloat(value) || 0
+        handleChange('partPaymentAmount', numValue)
+    }
+
+    const handleInterestRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value
+        // Allow empty, digits, and one decimal point
+        if (value === '' || /^\d*\.?\d*$/.test(value)) {
+            setInterestRateDisplay(value)
+            const numValue = parseFloat(value) || 0
+            if (numValue >= 0 && numValue <= 30) {
+                handleChange('interestRate', numValue / 100)
+            }
+        }
+    }
+
+    return (
+        <Card className="sticky top-24">
+            <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
+                <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                Loan Parameters
+            </h3>
+
+            <div className="space-y-5">
+                {/* Current Principal */}
+                <div>
+                    <Input
+                        label="Current Outstanding Principal"
+                        prefix="₹"
+                        type="text"
+                        inputMode="numeric"
+                        value={input.currentPrincipal.toLocaleString('en-IN')}
+                        onChange={handlePrincipalChange}
+                        placeholder="50,00,000"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                        {input.currentPrincipal > 0 && `≈ ${formatIndianNumber(input.currentPrincipal)}`}
+                    </p>
+                </div>
+
+                {/* Interest Rate */}
+                <div>
+                    <Input
+                        label="Interest Rate"
+                        suffix="% p.a."
+                        type="text"
+                        inputMode="decimal"
+                        value={interestRateDisplay}
+                        onChange={handleInterestRateChange}
+                        onBlur={() => setInterestRateDisplay((input.interestRate * 100).toFixed(2))}
+                        placeholder="8.50"
+                    />
+                </div>
+
+                {/* Remaining Tenure */}
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                        Remaining Tenure
+                    </label>
+                    <div className="flex gap-2">
+                        <Input
+                            type="number"
+                            min="1"
+                            max="360"
+                            value={input.remainingTenureMonths}
+                            onChange={(e) => handleChange('remainingTenureMonths', parseInt(e.target.value) || 0)}
+                            suffix="months"
+                            className="flex-1"
+                        />
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">
+                        {input.remainingTenureMonths > 0 && (
+                            <>≈ {Math.floor(input.remainingTenureMonths / 12)} years {input.remainingTenureMonths % 12} months</>
+                        )}
+                    </p>
+                </div>
+
+                <hr className="border-slate-200" />
+
+                {/* Part-Payment Section */}
+                <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                    Prepayment Details
+                </h4>
+
+                {/* Part-Payment Amount */}
+                <div>
+                    <Input
+                        label="Part-Payment Amount"
+                        prefix="₹"
+                        type="text"
+                        inputMode="numeric"
+                        value={input.partPaymentAmount.toLocaleString('en-IN')}
+                        onChange={handlePartPaymentChange}
+                        placeholder="5,00,000"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                        {input.partPaymentAmount > 0 && `≈ ${formatIndianNumber(input.partPaymentAmount)}`}
+                    </p>
+                </div>
+
+                {/* Month of Prepayment */}
+                <Input
+                    label="Prepayment in Month"
+                    suffix={`of ${input.remainingTenureMonths}`}
+                    type="number"
+                    min="1"
+                    max={input.remainingTenureMonths}
+                    value={input.prepaymentMonth}
+                    onChange={(e) => handleChange('prepaymentMonth', Math.min(parseInt(e.target.value) || 1, input.remainingTenureMonths))}
+                    placeholder="12"
+                />
+
+                <hr className="border-slate-200" />
+
+                {/* Financial Health Check */}
+                <h4 className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                    For Personalized Advice
+                </h4>
+
+                {/* Emergency Fund Toggle */}
+                <div className="flex items-center justify-between py-2">
+                    <span className="text-sm text-slate-700">Do you have an emergency fund?</span>
+                    <button
+                        type="button"
+                        onClick={() => handleChange('hasEmergencyFund', !input.hasEmergencyFund)}
+                        className={`
+              relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+              ${input.hasEmergencyFund ? 'bg-primary-600' : 'bg-slate-300'}
+            `}
+                    >
+                        <span
+                            className={`
+                inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                ${input.hasEmergencyFund ? 'translate-x-6' : 'translate-x-1'}
+              `}
+                        />
+                    </button>
+                </div>
+
+                {/* Risk Appetite */}
+                <Toggle
+                    label="Investment Risk Appetite"
+                    options={[
+                        { value: 'low', label: 'Low' },
+                        { value: 'medium', label: 'Medium' },
+                        { value: 'high', label: 'High' },
+                    ]}
+                    value={input.riskAppetite}
+                    onChange={(value) => handleChange('riskAppetite', value as 'low' | 'medium' | 'high')}
+                />
+
+                {/* Disclaimer */}
+                <p className="text-xs text-slate-400 mt-4">
+                    * This tool provides indicative calculations. Actual EMI and interest may vary slightly based on your bank's computation method.
+                </p>
+            </div>
+        </Card>
+    )
+}
