@@ -8,9 +8,16 @@ interface TooltipProps {
   children: ReactNode
   position?: 'top' | 'bottom' | 'left' | 'right'
   showIcon?: boolean
+  iconPosition?: 'start' | 'end'
 }
 
-export function Tooltip({ content, children, position = 'top', showIcon = true }: TooltipProps) {
+export function Tooltip({
+  content,
+  children,
+  position = 'top',
+  showIcon = true,
+  iconPosition = 'end'
+}: TooltipProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
   const tooltipRef = useRef<HTMLDivElement>(null)
@@ -46,31 +53,34 @@ export function Tooltip({ content, children, position = 'top', showIcon = true }
     right: 'right-full top-1/2 -translate-y-1/2 border-r-slate-800 border-y-transparent border-l-transparent',
   }
 
+  const Icon = () => (
+    <button
+      type="button"
+      onClick={() => setIsOpen(!isOpen)}
+      onMouseEnter={() => !isOpen && setIsOpen(true)}
+      onMouseLeave={() => !showDetails && setIsOpen(false)}
+      className="inline-flex items-center justify-center w-4 h-4 text-xs text-slate-400 hover:text-primary-600 transition-colors shrink-0"
+      aria-label="More information"
+    >
+      <svg
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        className="w-4 h-4"
+      >
+        <path
+          fillRule="evenodd"
+          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </button>
+  )
+
   return (
     <div className="relative inline-flex items-center gap-1" ref={tooltipRef}>
+      {showIcon && iconPosition === 'start' && <Icon />}
       {children}
-      {showIcon && (
-        <button
-          type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          onMouseEnter={() => !isOpen && setIsOpen(true)}
-          onMouseLeave={() => !showDetails && setIsOpen(false)}
-          className="inline-flex items-center justify-center w-4 h-4 text-xs text-slate-400 hover:text-primary-600 transition-colors"
-          aria-label="More information"
-        >
-          <svg
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="w-4 h-4"
-          >
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-      )}
+      {showIcon && iconPosition === 'end' && <Icon />}
 
       {isOpen && (
         <div

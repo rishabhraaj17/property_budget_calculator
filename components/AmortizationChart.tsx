@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react'
 import { AmortizationRow } from '@/lib/loanOptimizerTypes'
-import { formatIndianNumber } from '@/lib/calculations'
-import { Card } from './ui'
+import { formatIndianNumber, formatCurrency } from '@/lib/calculations'
+import { Card, Tooltip } from './ui'
 
 interface AmortizationChartProps {
     schedule: AmortizationRow[]
@@ -86,11 +86,25 @@ export function AmortizationChart({ schedule, prepaymentMonth }: AmortizationCha
             <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="text-center p-3 bg-primary-50 rounded-lg">
                     <p className="text-xs text-primary-600 uppercase tracking-wide font-medium">Total Principal</p>
-                    <p className="text-lg font-bold text-primary-700">₹{formatIndianNumber(totals.principal)}</p>
+                    <div className="flex justify-center">
+                        <Tooltip
+                            content={`Exact Amount: ${formatCurrency(totals.principal)}`}
+                            iconPosition="start"
+                        >
+                            <p className="text-lg font-bold text-primary-700">₹{formatIndianNumber(totals.principal)}</p>
+                        </Tooltip>
+                    </div>
                 </div>
                 <div className="text-center p-3 bg-danger-50 rounded-lg">
                     <p className="text-xs text-danger-600 uppercase tracking-wide font-medium">Total Interest</p>
-                    <p className="text-lg font-bold text-danger-700">₹{formatIndianNumber(totals.interest)}</p>
+                    <div className="flex justify-center">
+                        <Tooltip
+                            content={`Exact Amount: ${formatCurrency(totals.interest)}`}
+                            iconPosition="start"
+                        >
+                            <p className="text-lg font-bold text-danger-700">₹{formatIndianNumber(totals.interest)}</p>
+                        </Tooltip>
+                    </div>
                 </div>
                 <div className="text-center p-3 bg-slate-100 rounded-lg">
                     <p className="text-xs text-slate-600 uppercase tracking-wide font-medium">Interest Ratio</p>

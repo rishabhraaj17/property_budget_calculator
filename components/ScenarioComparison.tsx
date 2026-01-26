@@ -2,7 +2,7 @@
 
 import { ScenarioResult } from '@/lib/loanOptimizerTypes'
 import { formatIndianNumber, formatCurrency } from '@/lib/calculations'
-import { Card } from './ui'
+import { Card, Tooltip } from './ui'
 
 interface ScenarioComparisonProps {
     original: ScenarioResult
@@ -124,9 +124,16 @@ export function ScenarioComparison({
                         {/* Total Interest */}
                         <div className="text-center mb-4">
                             <p className="text-xs text-slate-500 uppercase tracking-wide">Total Interest</p>
-                            <p className="text-lg font-semibold text-danger-600">
-                                ₹{formatIndianNumber(scenario.data.totalInterest)}
-                            </p>
+                            <div className="flex justify-center">
+                                <Tooltip
+                                    content={`Exact Amount: ${formatCurrency(scenario.data.totalInterest)}`}
+                                    iconPosition="start"
+                                >
+                                    <p className="text-lg font-semibold text-danger-600">
+                                        ₹{formatIndianNumber(scenario.data.totalInterest)}
+                                    </p>
+                                </Tooltip>
+                            </div>
                         </div>
 
                         {/* Interest Saved */}
@@ -135,9 +142,16 @@ export function ScenarioComparison({
                                 <p className="text-xs text-success-700 uppercase tracking-wide font-medium">
                                     Interest Saved
                                 </p>
-                                <p className="text-xl font-bold text-success-700">
-                                    ₹{formatIndianNumber(scenario.data.interestSaved)}
-                                </p>
+                                <div className="flex justify-center">
+                                    <Tooltip
+                                        content={`Exact Savings: ${formatCurrency(scenario.data.interestSaved)}`}
+                                        iconPosition="start"
+                                    >
+                                        <p className="text-xl font-bold text-success-700">
+                                            ₹{formatIndianNumber(scenario.data.interestSaved)}
+                                        </p>
+                                    </Tooltip>
+                                </div>
                             </div>
                         )}
 
@@ -161,9 +175,19 @@ export function ScenarioComparison({
                         </svg>
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-primary-900">
-                            Maximum Interest Savings: ₹{formatIndianNumber(Math.max(reduceTenure.interestSaved, reduceEMI.interestSaved))}
-                        </p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium text-primary-900">
+                                Maximum Interest Savings:
+                            </p>
+                            <Tooltip
+                                content={`Exact Amount: ${formatCurrency(Math.max(reduceTenure.interestSaved, reduceEMI.interestSaved))}`}
+                                iconPosition="start"
+                            >
+                                <span className="text-sm font-bold text-primary-900">
+                                    ₹{formatIndianNumber(Math.max(reduceTenure.interestSaved, reduceEMI.interestSaved))}
+                                </span>
+                            </Tooltip>
+                        </div>
                         <p className="text-xs text-primary-700">
                             By choosing tenure reduction, you can be debt-free {reduceTenure.tenureReduced} months earlier
                         </p>
