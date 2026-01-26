@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { AmortizationRow } from '@/lib/loanOptimizerTypes'
 import { formatIndianNumber, formatCurrency } from '@/lib/calculations'
 import { Card, Tooltip } from './ui'
@@ -11,6 +11,8 @@ interface AmortizationChartProps {
 }
 
 export function AmortizationChart({ schedule, prepaymentMonth }: AmortizationChartProps) {
+    const [hoveredYear, setHoveredYear] = useState<number | null>(null)
+
     // Aggregate by year for chart
     const yearlyData = useMemo(() => {
         const years = new Map<number, { principal: number; interest: number; balance: number }>()
@@ -57,8 +59,11 @@ export function AmortizationChart({ schedule, prepaymentMonth }: AmortizationCha
 
     const prepaymentYear = Math.ceil(prepaymentMonth / 12)
 
+    // Find data for hovered year
+    const hoveredData = hoveredYear ? yearlyData.find(d => d.year === hoveredYear) : null
+
     return (
-        <Card>
+        <Card className="relative">
             <div className="flex items-center justify-between mb-4">
                 <div>
                     <h3 className="text-lg font-semibold text-slate-900">Amortization Breakdown</h3>
@@ -114,13 +119,43 @@ export function AmortizationChart({ schedule, prepaymentMonth }: AmortizationCha
                 </div>
             </div>
 
+            {/* Chart Tooltip Overlay */}
+            {hoveredData && (
+                <div
+                    className="absolute z-10 bg-slate-900 text-white text-xs rounded-lg shadow-xl p-3 pointer-events-none transform -translate-x-1/2 -translate-y-full transition-opacity duration-200"
+                    style={{
+                        left: padding.left + yearlyData.findIndex(d => d.year === hoveredYear) * (barWidth + barGap) + barGap / 2 + barWidth / 2,
+                        top: padding.top + plotHeight / 2 // Approximate center vertically or adjust as needed
+                    }}
+                >
+                    <p className="font-bold border-b border-slate-700 pb-1 mb-1">Year {hoveredData.year}</p>
+                    <div className="space-y-1">
+                        <div className="flex justify-between gap-4">
+                            <span className="text-primary-300">Principal:</span>
+                            <span className="font-mono">{formatCurrency(hoveredData.principal)}</span>
+                        </div>
+                        <div className="flex justify-between gap-4">
+                            <span className="text-danger-300">Interest:</span>
+                            <span className="font-mono">{formatCurrency(hoveredData.interest)}</span>
+                        </div>
+                        <div className="flex justify-between gap-4 border-t border-slate-700 pt-1 mt-1">
+                            <span className="text-success-400">Balance:</span>
+                            <span className="font-mono">{formatCurrency(hoveredData.balance)}</span>
+                        </div>
+                    </div>
+                    {/* Tiny arrow pointing down */}
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-900"></div>
+                </div>
+            )}
+
             {/* SVG Chart */}
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto relative">
                 <svg
                     width={chartWidth}
                     height={chartHeight}
                     className="mx-auto"
                     style={{ minWidth: chartWidth }}
+                    onMouseLeave={() => setHoveredYear(null)}
                 >
                     {/* Y-axis gridlines */}
                     {[0, 0.25, 0.5, 0.75, 1].map((tick) => (
@@ -150,16 +185,31 @@ export function AmortizationChart({ schedule, prepaymentMonth }: AmortizationCha
                         const principalHeight = (d.principal / maxValue) * plotHeight
                         const interestHeight = (d.interest / maxValue) * plotHeight
                         const isPrepaymentYear = d.year === prepaymentYear
+                        const isHovered = d.year === hoveredYear
 
                         return (
-                            <g key={d.year}>
+                            <g
+                                key={d.year}
+                                onMouseEnter={() => setHoveredYear(d.year)}
+                                className="cursor-crosshair transition-all duration-200"
+                                style={{ opacity: hoveredYear && !isHovered ? 0.4 : 1 }}
+                            >
+                                {/* Hit area (invisible rect for better hover) */}
+                                <rect
+                                    x={x - barGap / 2}
+                                    y={padding.top}
+                                    width={barWidth + barGap}
+                                    height={plotHeight}
+                                    fill="transparent"
+                                />
+
                                 {/* Interest (bottom) */}
                                 <rect
                                     x={x}
                                     y={padding.top + plotHeight - interestHeight}
                                     width={barWidth}
                                     height={interestHeight}
-                                    className="fill-danger-400"
+                                    className={`transition-colors duration-200 ${isHovered ? 'fill-danger-500' : 'fill-danger-400'}`}
                                     rx={2}
                                 />
                                 {/* Principal (top) */}
@@ -168,7 +218,7 @@ export function AmortizationChart({ schedule, prepaymentMonth }: AmortizationCha
                                     y={padding.top + plotHeight - interestHeight - principalHeight}
                                     width={barWidth}
                                     height={principalHeight}
-                                    className="fill-primary-500"
+                                    className={`transition-colors duration-200 ${isHovered ? 'fill-primary-600' : 'fill-primary-500'}`}
                                     rx={2}
                                 />
                                 {/* Prepayment marker */}
@@ -185,9 +235,14 @@ export function AmortizationChart({ schedule, prepaymentMonth }: AmortizationCha
                                     x={x + barWidth / 2}
                                     y={padding.top + plotHeight + 25}
                                     textAnchor="middle"
-                                    className={`text-xs ${isPrepaymentYear ? 'fill-success-700 font-semibold' : 'fill-slate-500'}`}
+                                    className={`text-xs transition-colors duration-200 ${isHovered
+                                            ? 'fill-slate-900 font-bold'
+                                            : isPrepaymentYear
+                                                ? 'fill-success-700 font-semibold'
+                                                : 'fill-slate-500'
+                                        }`}
                                 >
-                                    Y{d.year}
+                                    {d.year % 5 === 0 || i === 0 || i === yearlyData.length - 1 ? `Y${d.year}` : ''}
                                 </text>
                             </g>
                         )
@@ -204,19 +259,22 @@ export function AmortizationChart({ schedule, prepaymentMonth }: AmortizationCha
                         stroke="#22c55e"
                         strokeWidth={2}
                         strokeLinejoin="round"
+                        className="pointer-events-none"
                     />
 
                     {/* Balance Points */}
                     {yearlyData.map((d, i) => {
                         const x = padding.left + i * (barWidth + barGap) + barWidth / 2 + barGap / 2
                         const y = padding.top + balanceScale(d.balance)
+                        const isHovered = d.year === hoveredYear
+
                         return (
                             <circle
                                 key={`point-${d.year}`}
                                 cx={x}
                                 cy={y}
-                                r={4}
-                                className="fill-white stroke-success-500"
+                                r={isHovered ? 6 : 4}
+                                className={`transition-all duration-200 ${isHovered ? 'fill-success-600 stroke-white' : 'fill-white stroke-success-500'}`}
                                 strokeWidth={2}
                             />
                         )
@@ -226,7 +284,7 @@ export function AmortizationChart({ schedule, prepaymentMonth }: AmortizationCha
 
             {/* Note */}
             <p className="text-xs text-slate-400 mt-4 text-center">
-                Green dots on balance line show remaining principal. Prepayment year marked with green circle.
+                Hover over bars to see detailed breakdown. Green line shows remaining balance.
             </p>
         </Card>
     )
