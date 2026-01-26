@@ -109,6 +109,25 @@ export function LoanOptimizerForm({ input, onChange }: LoanOptimizerFormProps) {
                     </p>
                 </div>
 
+                {/* Exact EMI Override */}
+                <div>
+                    <Input
+                        label="Current EMI (Optional)"
+                        prefix="₹"
+                        type="text"
+                        inputMode="numeric"
+                        value={input.existingEMI ? input.existingEMI.toLocaleString('en-IN') : ''}
+                        onChange={(e) => {
+                            const val = e.target.value.replace(/,/g, '')
+                            handleChange('existingEMI', val === '' ? 0 : parseFloat(val))
+                        }}
+                        placeholder="Leave empty to calculate"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                        Enter if different from calculated EMI
+                    </p>
+                </div>
+
                 <hr className="border-slate-200" />
 
                 {/* Part-Payment Section */}

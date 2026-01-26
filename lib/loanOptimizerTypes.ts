@@ -8,6 +8,7 @@ export interface LoanOptimizerInput {
     remainingTenureMonths: number // Remaining tenure in months
     partPaymentAmount: number     // One-time part-payment amount
     prepaymentMonth: number       // Month number when prepayment will be made (1-indexed)
+    existingEMI?: number          // Optional: User override for current actual EMI
     hasEmergencyFund: boolean     // Whether user has emergency fund
     riskAppetite: 'low' | 'medium' | 'high' // User's risk appetite for investments
 }

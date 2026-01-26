@@ -115,15 +115,37 @@ export function generateAmortizationSchedule(
 /**
  * Calculate the original scenario without any prepayment
  */
+// ... (imports)
+
+/**
+ * Calculate the original scenario without any prepayment
+ */
 export function calculateOriginalScenario(
     input: LoanOptimizerInput,
     startDate: Date = new Date()
 ): ScenarioResult {
-    const emi = calculateEMI(input.currentPrincipal, input.interestRate, input.remainingTenureMonths)
+    // Use existing EMI if provided and valid (greater than monthly interest)
+    // Otherwise calculate standard EMI
+    let emi = 0
+    const monthlyRate = input.interestRate / 12
+    const minRequiredEMI = Math.floor(input.currentPrincipal * monthlyRate)
+
+    if (input.existingEMI && input.existingEMI > minRequiredEMI) {
+        emi = input.existingEMI
+    } else {
+        emi = calculateEMI(input.currentPrincipal, input.interestRate, input.remainingTenureMonths)
+    }
+
+    // Safety cap for schedule generation: If using custom EMI, tenure might differ
+    // Ensure we run enough months to clear loan or hit reasonable limit (e.g. 30 years)
+    const simulationMonths = input.existingEMI
+        ? Math.max(input.remainingTenureMonths, 360)
+        : input.remainingTenureMonths
+
     const schedule = generateAmortizationSchedule(
         input.currentPrincipal,
         input.interestRate,
-        input.remainingTenureMonths,
+        simulationMonths,
         emi,
         0,
         0,
