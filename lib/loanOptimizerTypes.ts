@@ -41,7 +41,7 @@ export interface RecommendationType {
     priority: number              // 1 = highest priority
     title: string
     description: string
-    icon: 'trending-down' | 'wallet' | 'chart-up' | 'alert' | 'info'
+    icon: 'trending-down' | 'wallet' | 'chart-up' | 'alert' | 'info' | 'check'
     color: 'success' | 'primary' | 'warning' | 'danger' | 'slate'
 }
 
@@ -61,3 +61,55 @@ export interface OptimizationResult {
 export const INVESTMENT_BENCHMARK_RETURN = 0.12  // 12% for Nifty 50
 export const LOW_INTEREST_THRESHOLD = 0.09       // 9% threshold for prepay vs invest decision
 export const FINAL_TENURE_PERCENTAGE = 0.20      // Final 20% of tenure where interest is minimal
+
+// ============================
+// Multi-Property Prepayment Types
+// ============================
+
+export interface MultiPropertyLoan {
+    id: string
+    name: string
+    currentPrincipal: number
+    interestRate: number           // Annual rate as decimal
+    remainingTenureMonths: number
+    existingEMI?: number
+}
+
+export interface MultiPropertyInput {
+    loans: MultiPropertyLoan[]
+    totalPrepaymentAmount: number
+    prepaymentMonth: number        // Month number when prepayment will be made (1-indexed)
+    strategy: 'highest_rate' | 'smallest_balance' | 'manual'
+    hasEmergencyFund: boolean
+    riskAppetite: 'low' | 'medium' | 'high'
+    manualAllocations?: Record<string, number>  // loanId -> percentage (0-100), must sum to 100
+}
+
+export interface MultiPropertyAllocation {
+    loanId: string
+    loanName: string
+    interestRate: number
+    currentPrincipal: number
+    allocatedAmount: number
+    interestSavedReduceTenure: number
+    tenureReducedMonths: number
+    interestSavedReduceEMI: number
+    newEMI: number
+    originalEMI: number
+    originalTotalInterest: number
+    newTotalInterestReduceTenure: number
+}
+
+export interface MultiPropertyResult {
+    allocations: MultiPropertyAllocation[]
+    totalInterestSaved: number
+    totalTenureReduced: number    // Average tenure reduced across properties
+    totalPrepaymentUsed: number
+    remainingBudget: number
+    strategy: 'highest_rate' | 'smallest_balance' | 'manual'
+    strategyExplanation: string
+    recommendations: RecommendationType[]
+    perPropertyResults: Record<string, OptimizationResult>  // Keyed by loanId
+    prepaymentMonth: number
+}
+

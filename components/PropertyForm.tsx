@@ -534,7 +534,7 @@ export function PropertyForm({
             </div>
           )}
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <p className="text-slate-500">Govt Charges</p>
               <p className="font-semibold text-slate-900">{formatCurrency(preview.totalGovtCharges)}</p>

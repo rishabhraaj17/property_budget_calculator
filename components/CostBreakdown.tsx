@@ -48,7 +48,7 @@ export function CostBreakdown({ calculations, propertyType }: CostBreakdownProps
   return (
     <div className="space-y-6">
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <Card padding="sm" className="text-center">
           <p className="text-xs text-slate-500 uppercase tracking-wide">Agreement Value</p>
           <p className="text-lg font-bold text-slate-900 mt-1">

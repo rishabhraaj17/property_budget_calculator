@@ -42,7 +42,7 @@ export function LoanCalculator({
       <h4 className="font-semibold text-slate-900 mb-4">Loan Details</h4>
 
       {/* Main Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
         <div className="text-center p-4 bg-slate-50 rounded-lg">
           <p className="text-xs text-slate-500 uppercase tracking-wide">Principal</p>
           <p className="text-xl font-bold text-slate-900 mt-1">
@@ -70,7 +70,7 @@ export function LoanCalculator({
           <div className="h-4 bg-primary-500 rounded" style={{ width: `${(principalPerMonth / calculations.emi) * 100}%` }} />
           <div className="h-4 bg-danger-500 rounded flex-1" />
         </div>
-        <div className="flex justify-between text-sm">
+        <div className="flex flex-col sm:flex-row justify-between text-sm gap-1 sm:gap-0">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 bg-primary-500 rounded" />
             <span className="text-slate-600">Principal: {formatCurrency(principalPerMonth)}/mo (avg)</span>

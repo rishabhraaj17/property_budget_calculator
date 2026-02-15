@@ -186,13 +186,13 @@ export function ComparisonTable({ properties }: ComparisonTableProps) {
         <table className="w-full">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-200">
-              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 sticky left-0 bg-slate-50 min-w-[200px]">
+              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 sticky left-0 bg-slate-50 min-w-[140px] z-10">
                 Metric
               </th>
               {properties.map((property) => (
                 <th
                   key={property.id}
-                  className="px-4 py-3 text-left text-sm font-semibold text-slate-900 min-w-[180px]"
+                  className="px-4 py-3 text-left text-sm font-semibold text-slate-900 min-w-[160px]"
                 >
                   <div className="truncate max-w-[160px]" title={property.name}>
                     {property.name}
@@ -225,7 +225,7 @@ export function ComparisonTable({ properties }: ComparisonTableProps) {
 
                     return (
                       <tr key={metric.key} className="border-b border-slate-100 hover:bg-slate-50">
-                        <td className="px-4 py-3 text-sm text-slate-600 sticky left-0 bg-white">
+                        <td className="px-4 py-3 text-sm text-slate-600 sticky left-0 bg-white z-10">
                           {metric.label}
                         </td>
                         {properties.map((property) => {
@@ -236,13 +236,12 @@ export function ComparisonTable({ properties }: ComparisonTableProps) {
                           return (
                             <td
                               key={`${property.id}-${metric.key}`}
-                              className={`px-4 py-3 text-sm font-medium ${
-                                isBest
+                              className={`px-4 py-3 text-sm font-medium ${isBest
                                   ? metric.highlight === 'lowest'
                                     ? 'text-success-600 bg-success-50'
                                     : 'text-primary-600 bg-primary-50'
                                   : 'text-slate-900'
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center gap-2">
                                 {metric.format(value)}

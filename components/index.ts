@@ -10,4 +10,7 @@ export { ScenarioComparison } from './ScenarioComparison'
 export { AmortizationSchedule } from './AmortizationSchedule'
 export { RecommendationCard } from './RecommendationCard'
 export { AmortizationChart } from './AmortizationChart'
+export { MultiPropertyOptimizerForm } from './MultiPropertyOptimizerForm'
+export { MultiPropertyResults } from './MultiPropertyResults'
 export * from './ui'
+

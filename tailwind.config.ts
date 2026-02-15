@@ -6,6 +6,16 @@ const config: Config = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  // Safelist classes that are generated dynamically
+  safelist: [
+    'pr-12',
+    'pr-16',
+    'pr-20',
+    'pr-24',
+    'pr-28',
+    'pr-32',
+    'pr-36',
+  ],
   theme: {
     extend: {
       colors: {

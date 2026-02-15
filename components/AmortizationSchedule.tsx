@@ -29,7 +29,7 @@ export function AmortizationSchedule({
 
     return (
         <Card>
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
                 <div>
                     <h3 className="text-lg font-semibold text-slate-900">Amortization Schedule</h3>
                     <p className="text-sm text-slate-500">

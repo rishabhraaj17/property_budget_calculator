@@ -62,12 +62,12 @@ export function ScenarioComparison({
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto snap-x snap-mandatory pb-2 -mx-2 px-2 md:mx-0 md:px-0 md:overflow-visible">
                 {scenarios.map((scenario) => (
                     <div
                         key={scenario.title}
                         className={`
-              relative rounded-xl p-5 border-2 transition-all
+              relative rounded-xl p-4 sm:p-5 border-2 transition-all min-w-[260px] sm:min-w-0 snap-center flex-shrink-0 md:flex-shrink
               ${scenario.highlight
                                 ? 'border-success-500 bg-success-50/50 ring-2 ring-success-200'
                                 : 'border-slate-200 bg-white'
@@ -167,7 +167,7 @@ export function ScenarioComparison({
             </div>
 
             {/* Quick Summary */}
-            <div className="mt-6 p-4 bg-primary-50 rounded-lg border border-primary-200">
+            <div className="mt-6 p-3 sm:p-4 bg-primary-50 rounded-lg border border-primary-200">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
                         <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

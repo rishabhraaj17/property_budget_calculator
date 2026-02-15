@@ -5,9 +5,12 @@ interface ToggleProps {
   value: string
   onChange: (value: string) => void
   label?: string
+  size?: 'sm' | 'md'
 }
 
-export function Toggle({ options, value, onChange, label }: ToggleProps) {
+export function Toggle({ options, value, onChange, label, size = 'md' }: ToggleProps) {
+  const isCompact = size === 'sm'
+
   return (
     <div className="w-full">
       {label && (
@@ -15,14 +18,15 @@ export function Toggle({ options, value, onChange, label }: ToggleProps) {
           {label}
         </span>
       )}
-      <div className="flex bg-slate-100 rounded-lg p-1">
+      <div className={`inline-flex bg-slate-100 rounded-lg p-1 ${isCompact ? 'w-full' : 'w-full'}`}>
         {options.map((option) => (
           <button
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
             className={`
-              flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all
+              flex-1 min-w-0 px-2 py-1.5 text-xs font-medium rounded-md transition-all truncate
+              sm:px-3 sm:py-2 sm:text-sm
               ${value === option.value
                 ? 'bg-white text-slate-900 shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'

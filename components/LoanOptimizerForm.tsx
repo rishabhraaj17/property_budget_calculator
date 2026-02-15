@@ -14,6 +14,14 @@ export function LoanOptimizerForm({ input, onChange }: LoanOptimizerFormProps) {
     const [interestRateDisplay, setInterestRateDisplay] = useState(
         (input.interestRate * 100).toFixed(2)
     )
+    // Track tenure as a display string to allow clearing
+    const [tenureDisplay, setTenureDisplay] = useState(
+        input.remainingTenureMonths.toString()
+    )
+    // Track prepayment month as display string
+    const [prepaymentDisplay, setPrepaymentDisplay] = useState(
+        input.prepaymentMonth.toString()
+    )
 
     const handleChange = (field: keyof LoanOptimizerInput, value: number | string | boolean) => {
         onChange({
@@ -46,8 +54,48 @@ export function LoanOptimizerForm({ input, onChange }: LoanOptimizerFormProps) {
         }
     }
 
+    const handleTenureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value
+        // Allow empty or numeric values
+        if (value === '' || /^\d+$/.test(value)) {
+            setTenureDisplay(value)
+            const numValue = parseInt(value)
+            if (!isNaN(numValue) && numValue >= 0 && numValue <= 360) {
+                handleChange('remainingTenureMonths', numValue)
+            }
+        }
+    }
+
+    const handleTenureBlur = () => {
+        // On blur, if empty or invalid, restore from input
+        if (tenureDisplay === '' || isNaN(parseInt(tenureDisplay))) {
+            setTenureDisplay(input.remainingTenureMonths.toString())
+        }
+    }
+
+    const handlePrepaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value
+        if (value === '' || /^\d+$/.test(value)) {
+            setPrepaymentDisplay(value)
+            const numValue = parseInt(value)
+            if (!isNaN(numValue) && numValue >= 1 && numValue <= input.remainingTenureMonths) {
+                handleChange('prepaymentMonth', numValue)
+            }
+        }
+    }
+
+    const handlePrepaymentBlur = () => {
+        if (prepaymentDisplay === '' || isNaN(parseInt(prepaymentDisplay))) {
+            setPrepaymentDisplay(input.prepaymentMonth.toString())
+        } else {
+            const numValue = Math.min(parseInt(prepaymentDisplay), input.remainingTenureMonths)
+            setPrepaymentDisplay(numValue.toString())
+            handleChange('prepaymentMonth', numValue)
+        }
+    }
+
     return (
-        <Card className="sticky top-24">
+        <Card className="lg:sticky lg:top-24">
             <h3 className="text-lg font-semibold text-slate-900 mb-6 flex items-center gap-2">
                 <svg className="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -88,20 +136,15 @@ export function LoanOptimizerForm({ input, onChange }: LoanOptimizerFormProps) {
 
                 {/* Remaining Tenure */}
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                        Remaining Tenure
-                    </label>
-                    <div className="flex gap-2">
-                        <Input
-                            type="number"
-                            min="1"
-                            max="360"
-                            value={input.remainingTenureMonths}
-                            onChange={(e) => handleChange('remainingTenureMonths', parseInt(e.target.value) || 0)}
-                            suffix="months"
-                            className="flex-1"
-                        />
-                    </div>
+                    <Input
+                        label="Remaining Tenure (months)"
+                        type="text"
+                        inputMode="numeric"
+                        value={tenureDisplay}
+                        onChange={handleTenureChange}
+                        onBlur={handleTenureBlur}
+                        placeholder="e.g., 240"
+                    />
                     <p className="text-xs text-slate-500 mt-1">
                         {input.remainingTenureMonths > 0 && (
                             <>≈ {Math.floor(input.remainingTenureMonths / 12)} years {input.remainingTenureMonths % 12} months</>
@@ -152,16 +195,20 @@ export function LoanOptimizerForm({ input, onChange }: LoanOptimizerFormProps) {
                 </div>
 
                 {/* Month of Prepayment */}
-                <Input
-                    label="Prepayment in Month"
-                    suffix={`of ${input.remainingTenureMonths}`}
-                    type="number"
-                    min="1"
-                    max={input.remainingTenureMonths}
-                    value={input.prepaymentMonth}
-                    onChange={(e) => handleChange('prepaymentMonth', Math.min(parseInt(e.target.value) || 1, input.remainingTenureMonths))}
-                    placeholder="12"
-                />
+                <div>
+                    <Input
+                        label={`Prepayment Month (1-${input.remainingTenureMonths})`}
+                        type="text"
+                        inputMode="numeric"
+                        value={prepaymentDisplay}
+                        onChange={handlePrepaymentChange}
+                        onBlur={handlePrepaymentBlur}
+                        placeholder="e.g., 12"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                        Which month from now will you make the prepayment?
+                    </p>
+                </div>
 
                 <hr className="border-slate-200" />
 
@@ -177,7 +224,7 @@ export function LoanOptimizerForm({ input, onChange }: LoanOptimizerFormProps) {
                         type="button"
                         onClick={() => handleChange('hasEmergencyFund', !input.hasEmergencyFund)}
                         className={`
-              relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+              relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0
               ${input.hasEmergencyFund ? 'bg-primary-600' : 'bg-slate-300'}
             `}
                     >
