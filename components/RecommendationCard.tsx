@@ -7,7 +7,7 @@ interface RecommendationCardProps {
     recommendations: RecommendationType[]
 }
 
-const iconMap = {
+const iconMap: Record<'trending-down' | 'wallet' | 'chart-up' | 'alert' | 'info' | 'check', JSX.Element> = {
     'trending-down': (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
@@ -31,6 +31,11 @@ const iconMap = {
     'info': (
         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+    ),
+    'check': (
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>
     ),
 }
